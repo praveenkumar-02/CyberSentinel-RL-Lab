@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CyberSentinel RL Lab | Reinforcement Learning Cybersecurity Simulator</title>
+  <meta name="description" content="CyberSentinel RL Lab: An Interactive Reinforcement Learning Simulator for Intelligent Cybersecurity Decision-Making (Q-Learning, SARSA, Model-Based RL).">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <!-- Chart.js for live training curves & benchmark visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="shell">
+  <!-- Left Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+      </div>
+      <div>
+        <b>CyberSentinel</b>
+        <small>RL THREAT LAB</small>
+      </div>
+    </div>
+
+    <div class="nav-label">MODULES</div>
+    <a class="nav active" href="#overview" id="nav-overview" onclick="switchTab('overview')">
+      <span class="nav-icon">▦</span> Overview
+    </a>
+    <a class="nav" href="#simulation" id="nav-simulation" onclick="switchTab('simulation')">
+      <span class="nav-icon">◉</span> RL Simulation Lab
+    </a>
+    <a class="nav" href="#training" id="nav-training" onclick="switchTab('training')">
+      <span class="nav-icon">⚡</span> Training & Analytics
+    </a>
+    <a class="nav" href="#policy" id="nav-policy" onclick="switchTab('policy')">
+      <span class="nav-icon">▥</span> Policy Explorer
+    </a>
+    <a class="nav" href="#benchmark" id="nav-benchmark" onclick="switchTab('benchmark')">
+      <span class="nav-icon">⇄</span> Benchmark Lab
+    </a>
+    <a class="nav" href="#learning" id="nav-learning" onclick="switchTab('learning')">
+      <span class="nav-icon">ℹ</span> RL Learning Center
+    </a>
+
+    <div class="side-bottom">
+      <div class="engine-status">
+        <span class="pulse"></span>
+        <span>RL Engine Active</span>
+      </div>
+      <div class="engine-meta" id="sideEngineMeta">Q-Learning · Discrete MDP</div>
+      <div class="engine-badge">Autonomous Agent</div>
+    </div>
+  </aside>
+
+  <!-- Main Content Body -->
+  <main>
+    <!-- Topbar Header -->
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">INTELLIGENT DECISION-MAKING / REINFORCEMENT LEARNING LAB</div>
+        <h1>CyberSentinel RL Lab</h1>
+        <p>Adaptive threat mitigation using Q-Learning, SARSA, and Model-Based Reinforcement Learning.</p>
+      </div>
+      <div class="topbar-actions">
+        <div class="algo-pill" id="topAlgoBadge">
+          <span class="dot normal"></span>
+          <span>Active Agent: <b id="topAlgoName">Q-Learning</b></span>
+        </div>
+        <button class="btn-ghost" onclick="quickRunDemo()" id="quickDemoBtn" title="Execute a live simulated demonstration episode">
+          ▶ Run Demo Episode
+        </button>
+        <div class="status-pill">
+          <span class="pulse"></span> SIMULATOR READY
+        </div>
+      </div>
+    </header>
+
+    <!-- SECTION 1: OVERVIEW DASHBOARD -->
+    <section class="tab-pane active" id="pane-overview">
+      <!-- Hero Banner -->
+      <div class="hero">
+        <div class="hero-content">
+          <span class="pill">● REINFORCEMENT LEARNING IN CYBERSECURITY</span>
+          <h2>Intelligent intrusion mitigation.<br><em>Learned through experience.</em></h2>
+          <p>
+            Unlike static firewall rule-books or static classifiers, Reinforcement Learning agents learn optimal response policies through trial, error, and delayed rewards.
+            Explore <b>Q-Learning</b> (off-policy TD), <b>SARSA</b> (on-policy TD), and <b>Model-Based RL</b> (learned transition dynamics + Value Iteration).
+          </p>
+          <div class="hero-actions">
+            <button class="primary" onclick="switchTab('simulation'); stepSimulation();">
+              <span>▶ &nbsp; Launch Simulation Lab</span>
+            </button>
+            <button class="secondary" onclick="switchTab('training')">
+              <span>⚡ &nbsp; Train RL Agents</span>
+            </button>
+            <button class="secondary" onclick="switchTab('benchmark'); runBenchmark();">
+              <span>⇄ &nbsp; Compare Algorithms</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-hidden="true">
+          <div class="orbit orbit1"></div>
+          <div class="orbit orbit2"></div>
+          <div class="radar-sweep"></div>
+          <div class="core">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            <small>RL MDP</small>
+          </div>
+          <span class="node n1">STATE: 12-MDP</span>
+          <span class="node n2">ACTIONS: [M, I, B]</span>
+          <span class="node n3">BELLMAN TARGET</span>
+        </div>
+      </div>
+
+      <!-- Telemetry Overview Cards -->
+      <div class="section-title">
+        <span class="eyebrow">AGENT TELEMETRY</span>
+        <h2>Reinforcement Learning System State</h2>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-top">
+            <span>TRAINED EPISODES</span>
+            <span class="metric-icon">⚡</span>
+          </div>
+          <strong id="ovTotalEpisodes">—</strong>
+          <small id="ovActiveAlgoDesc">Algorithm: Q-Learning</small>
+        </div>
+
+        <div class="metric-card normal-theme">
+          <div class="metric-top">
+            <span>MOVING AVG REWARD</span>
+            <span class="metric-icon">↗</span>
+          </div>
+          <strong id="ovMovingAvg">—</strong>
+          <small>Latest 10-episode rolling return</small>
+        </div>
+
+        <div class="metric-card detection-theme">
+          <div class="metric-top">
+            <span>TASK SUCCESS RATE</span>
+            <span class="metric-icon">✓</span>
+          </div>
+          <strong id="ovSuccessRate">—<i>%</i></strong>
+          <small>Episodes completed without breach</small>
+        </div>
+
+        <div class="metric-card suspicious-theme">
+          <div class="metric-top">
+            <span>MISSED THREAT RATE</span>
+            <span class="metric-icon">⚑</span>
+          </div>
+          <strong id="ovMissedThreatRate">—<i>%</i></strong>
+          <small>Severe exploits overlooked</small>
+        </div>
+      </div>
+
+      <!-- Secondary Metrics Row -->
+      <div class="metrics-sub-grid">
+        <div class="sub-metric">
+          <span class="sub-label">EXPLORATION RATE (&epsilon;)</span>
+          <strong id="ovEpsilon">—</strong>
+          <small>&epsilon;-Greedy randomness budget</small>
+        </div>
+        <div class="sub-metric">
+          <span class="sub-label">EVALUATION RETURN</span>
+          <strong id="ovEvalReward">—</strong>
+          <small>Mean score on unseen episodes</small>
+        </div>
+        <div class="sub-metric">
+          <span class="sub-label">UNNECESSARY BLOCK RATE</span>
+          <strong id="ovUnnecessaryBlock">—%</strong>
+          <small>False alarm business disruptions</small>
+        </div>
+        <div class="sub-metric">
+          <span class="sub-label">DISCRETE STATE SPACE</span>
+          <strong>12 States · 3 Actions</strong>
+          <small>Traffic &times; Logins &times; Behavior</small>
+        </div>
+      </div>
+
+      <!-- Architectural Overview Cards -->
+      <div class="cards-grid" style="margin-top: 24px;">
+        <div class="arch-card">
+          <div class="arch-number">01</div>
+          <h4>Discrete State Space (12 States)</h4>
+          <p>
+            Network traffic is encoded as $\mathbf{s} = \langle \text{Traffic Intensity}, \text{Failed Logins}, \text{Connection Behavior} \rangle$.
+            Spans benign states (0, 4, 8), suspicious probes (1, 2, 5, 6), and severe exploits (3, 7, 9, 10, 11).
+          </p>
+        </div>
+
+        <div class="arch-card">
+          <div class="arch-number">02</div>
+          <h4>Action Space & Trade-offs</h4>
+          <p>
+            <b>MONITOR (0):</b> +5 on benign; -12 on severe attack.<br>
+            <b>INVESTIGATE (1):</b> +8 on suspicious probe; -2 on benign (triage overhead).<br>
+            <b>BLOCK (2):</b> +10 on severe attack; -8 on benign (false alarm business disruption).
+          </p>
+        </div>
+
+        <div class="arch-card">
+          <div class="arch-number">03</div>
+          <h4>Three Core RL Approaches</h4>
+          <p>
+            <b>Q-Learning:</b> Off-policy Bellman optimality target $\max_{a'} Q(s', a')$.<br>
+            <b>SARSA:</b> On-policy actual next action target $Q(s', a')$.<br>
+            <b>Model-Based RL:</b> Learns empirical $\hat{P}(s'|s,a)$ and $\hat{R}$ with Value Iteration planning.
+          </p>
+        </div>
+
+        <div class="arch-card">
+          <div class="arch-number">04</div>
+          <h4>Rigorous Evaluation Protocol</h4>
+          <p>
+            Evaluation runs on separate seeded episodes with <b>zero learning</b>: Q-tables, transition counts, and value estimates are frozen to guarantee unbiased measurement.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: RL SIMULATION LAB -->
+    <section class="tab-pane" id="pane-simulation">
+      <div class="panel">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">STEP-BY-STEP INTERACTIVE SIMULATOR</div>
+            <h3>Simulated Network Environment (MDP Decision Epochs)</h3>
+            <p class="sub">Observe the current network state, execute actions manually or let the active agent choose, and inspect the resulting reward and transition.</p>
+          </div>
+          <div class="controls-actions">
+            <button class="secondary" onclick="resetSimulation()">↺ Reset Environment</button>
+            <button class="primary" onclick="stepSimulation()">▶ Step (Agent Choice)</button>
+            <button class="btn-ghost" onclick="runEpisodeSimulation()">⚡ Run Full Episode</button>
+          </div>
+        </div>
+
+        <!-- Simulation State Display Cards -->
+        <div class="sim-grid">
+          <div class="sim-card current-state-card">
+            <span class="sub-label">CURRENT ENVIRONMENT STATE</span>
+            <div class="state-header">
+              <span class="state-badge" id="simStateBadge">State 0</span>
+              <span class="badge" id="simCategoryBadge">● Benign</span>
+            </div>
+            <strong class="state-title" id="simStateTitle">Low Traffic, Normal Logins, Normal Behavior</strong>
+            <p class="fineprint" id="simStateDesc">Background legitimate network connection. Low probability of risk.</p>
+
+            <div class="feature-pills">
+              <span class="sim-pill" id="simPillTraffic">Traffic: Low</span>
+              <span class="sim-pill" id="simPillLogins">Logins: Normal (0-1)</span>
+              <span class="sim-pill" id="simPillBehavior">Behavior: Normal</span>
+            </div>
+
+            <div class="sim-meta-row">
+              <span>Step: <b id="simStepCount">0 / 20</b></span>
+              <span>Episode Status: <b id="simStatus">Active</b></span>
+            </div>
+          </div>
+
+          <!-- Interactive Action Controls -->
+          <div class="sim-card action-card">
+            <span class="sub-label">AVAILABLE ACTIONS & ESTIMATED VALUE</span>
+            <div class="action-buttons-group">
+              <button class="action-btn monitor-btn" onclick="stepSimulation(0)">
+                <div class="action-top">
+                  <b>0: MONITOR</b>
+                  <span class="q-val-tag" id="qVal0">Q: 0.00</span>
+                </div>
+                <small>Passive telemetry logging; zero business friction.</small>
+              </button>
+
+              <button class="action-btn investigate-btn" onclick="stepSimulation(1)">
+                <div class="action-top">
+                  <b>1: INVESTIGATE</b>
+                  <span class="q-val-tag" id="qVal1">Q: 0.00</span>
+                </div>
+                <small>Allocate SOC triage; forensic payload inspection.</small>
+              </button>
+
+              <button class="action-btn block-btn" onclick="stepSimulation(2)">
+                <div class="action-top">
+                  <b>2: BLOCK</b>
+                  <span class="q-val-tag" id="qVal2">Q: 0.00</span>
+                </div>
+                <small>Issue firewall drop rule; terminate connection.</small>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Last Step Outcome Banner -->
+        <div class="sim-outcome-box" id="simOutcomeBox">
+          <div class="outcome-header">
+            <div>
+              <span class="eyebrow" id="simOutcomeSub">LATEST TRANSITION OUTCOME</span>
+              <h4 id="simOutcomeTitle">Ready to simulate</h4>
+            </div>
+            <div class="reward-tag" id="simRewardTag">Reward: +0.0</div>
+          </div>
+          <p id="simExplanation">Click "Step (Agent Choice)" or select an action above to advance the simulated environment.</p>
+        </div>
+
+        <!-- Episode Step Trajectory Table -->
+        <div style="margin-top: 20px;">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">EPISODE STEP LOG</div>
+              <h4>Connection State History</h4>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>STEP</th>
+                  <th>ORIGIN STATE</th>
+                  <th>ACTION TAKEN</th>
+                  <th>REWARD</th>
+                  <th>NEXT STATE</th>
+                  <th>SIMULATED OUTCOME</th>
+                </tr>
+              </thead>
+              <tbody id="simTrajectoryBody">
+                <tr>
+                  <td colspan="6" class="empty">Execute a step or run an episode to view the live transition trajectory.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: TRAINING CONFIGURATION & ANALYTICS -->
+    <section class="tab-pane" id="pane-training">
+      <div class="control-panel">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">ALGORITHM TRAINING ENGINE</div>
+            <h3>Agent Hyperparameters & Training Configuration</h3>
+          </div>
+          <div class="config-actions">
+            <button class="secondary" onclick="resetActiveAgent()">↺ Reset Agent</button>
+            <button class="primary" onclick="startTraining()" id="trainBtn">
+              <span class="btn-text">⚡ &nbsp; Start Training</span>
+              <span class="spinner hidden" id="trainSpinner"></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Hyperparameter Form -->
+        <div class="controls-grid">
+          <div class="field">
+            <label for="trainAlgoSelect">Reinforcement Learning Algorithm</label>
+            <select id="trainAlgoSelect" onchange="onTrainAlgoChange()">
+              <option value="Q-Learning" selected>Q-Learning (Off-Policy TD Control)</option>
+              <option value="SARSA">SARSA (On-Policy TD Control)</option>
+              <option value="Model-Based RL">Model-Based RL (Learned Dynamics + Value Iteration)</option>
+            </select>
+            <small id="trainAlgoHelp">Off-policy TD update using max future Q-value regardless of exploration.</small>
+          </div>
+
+          <div class="field">
+            <label for="trainEpisodes">Training Episodes <b id="episodesVal">300</b></label>
+            <input id="trainEpisodes" type="range" min="50" max="1000" step="50" value="300" oninput="$('episodesVal').textContent=this.value">
+            <small>Number of simulated training episodes (10–20 steps each).</small>
+          </div>
+
+          <div class="field" id="fieldAlpha">
+            <label for="trainAlpha">Learning Rate (&alpha;) <b id="alphaVal">0.10</b></label>
+            <input id="trainAlpha" type="range" min="0.01" max="0.50" step="0.01" value="0.10" oninput="$('alphaVal').textContent=this.value">
+            <small>Weight given to new TD errors versus existing Q-estimates.</small>
+          </div>
+
+          <div class="field">
+            <label for="trainGamma">Discount Factor (&gamma;) <b id="gammaVal">0.95</b></label>
+            <input id="trainGamma" type="range" min="0.50" max="0.99" step="0.01" value="0.95" oninput="$('gammaVal').textContent=this.value">
+            <small>Weights immediate versus delayed future threat consequences.</small>
+          </div>
+
+          <div class="field" id="fieldEpsilon">
+            <label for="trainEpsilon">Initial Exploration (&epsilon;) <b id="epsVal">0.25</b></label>
+            <input id="trainEpsilon" type="range" min="0.05" max="1.00" step="0.05" value="0.25" oninput="$('epsVal').textContent=this.value">
+            <small>Probability of selecting random actions during early episodes.</small>
+          </div>
+
+          <div class="field" id="fieldPlanning" style="display: none;">
+            <label for="trainPlanning">Planning Sweeps (K) <b id="planningVal">15</b></label>
+            <input id="trainPlanning" type="range" min="2" max="30" step="1" value="15" oninput="$('planningVal').textContent=this.value">
+            <small>Internal Value Iteration sweeps per episode on the learned model.</small>
+          </div>
+        </div>
+
+        <div class="config-foot">
+          <div class="dataset-indicator">
+            <span class="status-dot"></span>
+            <span id="trainStatusMsg">System idle. Ready to train.</span>
+          </div>
+          <div class="config-actions">
+            <button class="secondary" onclick="evaluateActiveAgent()">📊 Run Evaluation (50 Episodes)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Training Analytics Charts -->
+      <div class="two-col" style="margin-top: 20px;">
+        <div class="panel">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">TRAINING CURVE</div>
+              <h3>Cumulative Episode Reward & Rolling Average</h3>
+            </div>
+          </div>
+          <div class="chart-box" style="height: 250px;">
+            <canvas id="trainRewardChart"></canvas>
+          </div>
+          <div class="legend-row">
+            <span><i class="dot normal"></i> Episode Reward</span>
+            <span><i class="dot" style="background: var(--cyan);"></i> 10-Episode Rolling Average</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">EXPLORATION & LENGTH</div>
+              <h3>Exploration Rate (&epsilon;) & Episode Durations</h3>
+            </div>
+          </div>
+          <div class="chart-box" style="height: 250px;">
+            <canvas id="trainEpsilonChart"></canvas>
+          </div>
+          <div class="legend-row">
+            <span><i class="dot" style="background: var(--amber);"></i> Exploration Rate (&epsilon;)</span>
+            <span><i class="dot" style="background: var(--purple);"></i> Steps Per Episode</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: AGENT POLICY EXPLORER -->
+    <section class="tab-pane" id="pane-policy">
+      <div class="panel">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">KNOWLEDGE BASE</div>
+            <h3>Learned Value Function & Action Policy ($\pi(s)$)</h3>
+            <p class="sub">Inspect the complete table of state-action Q-values, derived greedy actions, and model visit counts across all 12 discrete states.</p>
+          </div>
+          <div class="controls-actions">
+            <button class="secondary" onclick="refreshPolicyView()">↻ Refresh Policy Table</button>
+          </div>
+        </div>
+
+        <!-- Policy & Q-Table -->
+        <div class="table-wrap">
+          <table id="policyTable">
+            <thead>
+              <tr>
+                <th>STATE ID</th>
+                <th>NETWORK ENVIRONMENT STATE</th>
+                <th>THREAT CATEGORY</th>
+                <th>Q(s, MONITOR)</th>
+                <th>Q(s, INVESTIGATE)</th>
+                <th>Q(s, BLOCK)</th>
+                <th>OPTIMAL POLICY &pi;(s)</th>
+                <th>VISITS</th>
+              </tr>
+            </thead>
+            <tbody id="policyTableBody">
+              <tr>
+                <td colspan="8" class="empty">Loading agent policy table…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Model-Based Transition Matrix Explorer (Displayed for Model-Based RL) -->
+        <div id="modelBasedTransitionsPanel" style="margin-top: 24px; display: none;">
+          <div class="section-head">
+            <div>
+              <div class="eyebrow">MODEL-BASED INTERNAL DYNAMICS</div>
+              <h3>Empirical Transition Probability Matrix $\hat{P}(s' \mid s, a)$</h3>
+              <p class="sub">View the learned transition probabilities estimated by the agent from real interaction observations.</p>
+            </div>
+            <div>
+              <select id="matrixActionSelect" onchange="loadTransitionMatrix()" style="background: #08101a; border: 1px solid var(--border); color: var(--text); padding: 6px 10px; border-radius: 4px;">
+                <option value="0">Action 0: MONITOR</option>
+                <option value="1">Action 1: INVESTIGATE</option>
+                <option value="2">Action 2: BLOCK</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table id="transMatrixTable">
+              <thead id="transMatrixHead"></thead>
+              <tbody id="transMatrixBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: BENCHMARK LAB -->
+    <section class="tab-pane" id="pane-benchmark">
+      <div class="panel compare-panel">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">HEAD-TO-HEAD BENCHMARK</div>
+            <h3>Algorithm Performance Comparison</h3>
+            <p class="sub">Benchmarking Q-Learning, SARSA, Model-Based RL, and a Rule-Based Baseline under identical interaction budgets and deterministic evaluation episodes.</p>
+          </div>
+          <button class="primary" onclick="runBenchmark()" id="benchmarkBtn">
+            <span class="btn-text">⇄ &nbsp; Run Benchmark Comparison</span>
+            <span class="spinner hidden" id="benchSpinner"></span>
+          </button>
+        </div>
+
+        <div class="chart-box compare-chart" style="height: 260px;">
+          <canvas id="benchmarkChart"></canvas>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ALGORITHM</th>
+                <th>PARADIGM</th>
+                <th>AVG REWARD</th>
+                <th>REWARD STD</th>
+                <th>SUCCESS RATE</th>
+                <th>MISSED THREATS</th>
+                <th>UNNECESSARY BLOCKS</th>
+                <th>TRAIN INTERACTIONS</th>
+              </tr>
+            </thead>
+            <tbody id="benchmarkTableBody">
+              <tr>
+                <td colspan="8" class="empty">Click "Run Benchmark Comparison" to execute the evaluation protocol.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="fineprint">
+          Evaluation is conducted on 40 isolated, held-out evaluation episodes. During evaluation, no agent updates its Q-table or learned transition models.
+        </p>
+      </div>
+    </section>
+
+    <!-- SECTION 6: RL LEARNING CENTER -->
+    <section class="tab-pane" id="pane-learning">
+      <div class="panel how-panel">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">EDUCATIONAL SYLLABUS & VIVA GUIDE</div>
+            <h3>Reinforcement Learning Fundamentals in Cyber Defense</h3>
+          </div>
+          <span class="tag">THEORETICAL FOUNDATION</span>
+        </div>
+
+        <div class="cards-grid">
+          <div class="arch-card">
+            <div class="arch-number">01</div>
+            <h4>Markov Decision Process (MDP)</h4>
+            <p>
+              An MDP is represented as the tuple $(S, A, P, R, \gamma)$:
+              <b>$S$:</b> Discrete states (12 feature combinations).<br>
+              <b>$A$:</b> Actions (Monitor, Investigate, Block).<br>
+              <b>$P(s'|s,a)$:</b> Transition probability function.<br>
+              <b>$R(s,a,s')$:</b> Scalar feedback reward.<br>
+              <b>$\gamma$:</b> Discount factor ($0 \le \gamma < 1$).
+            </p>
+          </div>
+
+          <div class="arch-card">
+            <div class="arch-number">02</div>
+            <h4>Q-Learning (Off-Policy TD)</h4>
+            <p>
+              Updates state-action values using the Bellman Optimality target:
+              $$Q(s, a) \leftarrow Q(s, a) + \alpha \left[ r + \gamma \max_{a'} Q(s', a') - Q(s, a) \right]$$
+              <b>Why Off-Policy?</b> The target utilizes the maximum future Q-value over all actions, independent of the action chosen by the behavior policy.
+            </p>
+          </div>
+
+          <div class="arch-card">
+            <div class="arch-number">03</div>
+            <h4>SARSA (On-Policy TD)</h4>
+            <p>
+              Updates state-action values using the action actually selected by the current policy:
+              $$Q(s, a) \leftarrow Q(s, a) + \alpha \left[ r + \gamma Q(s', a') - Q(s, a) \right]$$
+              <b>Why On-Policy?</b> SARSA estimates the return of the policy currently being executed, taking the risk of exploration into account.
+            </p>
+          </div>
+
+          <div class="arch-card">
+            <div class="arch-number">04</div>
+            <h4>Model-Based RL & Planning</h4>
+            <p>
+              Learns an empirical model $\hat{P}(s'|s,a) = \frac{C(s,a,s')}{N(s,a)}$ and performs Value Iteration planning:
+              $$V(s) \leftarrow \max_{a} \sum_{s'} \hat{P}(s'|s,a) \left[ \hat{R} + \gamma V(s') \right]$$
+              Enables policy derivation with far fewer real environment interactions.
+            </p>
+          </div>
+        </div>
+
+        <!-- Algorithm Comparison Table -->
+        <div style="margin-top: 24px;">
+          <h4 style="margin-bottom: 12px;">Algorithm Technical Comparison Matrix</h4>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>DIMENSION</th>
+                  <th>Q-LEARNING</th>
+                  <th>SARSA</th>
+                  <th>MODEL-BASED RL</th>
+                  <th>RULE-BASED BASELINE</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><b>Paradigm</b></td>
+                  <td>Model-Free TD</td>
+                  <td>Model-Free TD</td>
+                  <td>Model-Based Dynamic Programming</td>
+                  <td>Static Heuristic Rules</td>
+                </tr>
+                <tr>
+                  <td><b>Policy Type</b></td>
+                  <td>Off-Policy ($\max_{a'}$)</td>
+                  <td>On-Policy (Actual $a'$)</td>
+                  <td>Value Iteration Planned $\pi(s)$</td>
+                  <td>Hardcoded Deterministic</td>
+                </tr>
+                <tr>
+                  <td><b>Sample Efficiency</b></td>
+                  <td>Moderate</td>
+                  <td>Moderate</td>
+                  <td>High (Reuses empirical model)</td>
+                  <td>N/A (Zero sample learning)</td>
+                </tr>
+                <tr>
+                  <td><b>Computation per Step</b></td>
+                  <td>$O(1)$</td>
+                  <td>$O(1)$</td>
+                  <td>$O(|S| \cdot |A| \cdot K)$ during planning</td>
+                  <td>$O(1)$</td>
+                </tr>
+                <tr>
+                  <td><b>Exploration Strategy</b></td>
+                  <td>$\epsilon$-Greedy with decay</td>
+                  <td>$\epsilon$-Greedy with decay</td>
+                  <td>Explores unvisited + planned $\pi(s)$</td>
+                  <td>No exploration</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="viva-box" style="margin-top: 24px;">
+          <h4>Academic & Project Viva Note</h4>
+          <p>
+            CyberSentinel RL Lab operates on a simulated discrete cybersecurity decision process designed for artificial intelligence education and algorithmic benchmarking.
+            Real-world Security Operations Centers (SOC) require continuous telemetry, human-in-the-loop validation, and defense-in-depth security architectures.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div>
+        <strong>CYBERSENTINEL RL LAB</strong> · Reinforcement Learning Cybersecurity Simulator
+      </div>
+      <div>
+        Built with Flask, Scikit-Learn, NumPy & Chart.js · Port 5000
+      </div>
+    </footer>
+  </main>
+</div>
+
+<!-- Scripts -->
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

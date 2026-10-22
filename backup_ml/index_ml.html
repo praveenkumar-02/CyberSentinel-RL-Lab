@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CyberSentinel AI — Intelligent Cyber Threat Detection & Simulation</title>
+  <meta name="description" content="Intelligent Network Cyber Threat Detection, Anomaly Detection & Machine Learning Benchmarking Platform.">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <!-- Chart.js with fallback handling -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="shell">
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+      </div>
+      <div>
+        <b>CyberSentinel</b>
+        <small>AI THREAT LAB</small>
+      </div>
+    </div>
+
+    <div class="nav-label">NAVIGATION</div>
+    <a class="nav active" href="#overview" id="nav-overview">
+      <span class="nav-icon">▦</span> Overview
+    </a>
+    <a class="nav" href="#events" id="nav-events">
+      <span class="nav-icon">◉</span> Threat Monitor
+    </a>
+    <a class="nav" href="#evaluation" id="nav-evaluation">
+      <span class="nav-icon">▥</span> Model Evaluation
+    </a>
+    <a class="nav" href="#compare" id="nav-compare">
+      <span class="nav-icon">⇄</span> Benchmark Lab
+    </a>
+    <a class="nav" href="#how-it-works" id="nav-how">
+      <span class="nav-icon">ℹ</span> How It Works
+    </a>
+
+    <div class="side-bottom">
+      <div class="engine-status">
+        <span class="pulse"></span>
+        <span>Local ML Engine</span>
+      </div>
+      <div class="engine-meta">Scikit-Learn 1.9 · Flask 3.1</div>
+      <div class="engine-badge">Educational Prototype</div>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main>
+    <!-- Topbar -->
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">SECURITY INTELLIGENCE / THREAT LAB 01</div>
+        <h1>Cyber Threat Analytics & Simulation</h1>
+        <p>Detect anomalous flows, train supervised classifiers, and benchmark machine learning models.</p>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn-ghost" onclick="openPreviewModal()" id="previewBtnTop" title="Inspect raw sample rows">
+          ▤ Preview Data
+        </button>
+        <a class="btn-ghost" href="/api/sample" download title="Download CSV sample">
+          ↓ Sample CSV
+        </a>
+        <button class="btn-ghost" onclick="resetDemo()" id="resetBtnTop" title="Reset to original demo state">
+          ↺ Reset Demo
+        </button>
+        <div class="status-pill">
+          <span class="pulse"></span> ENGINE ONLINE
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero / Playground Banner -->
+    <section class="hero" id="overview">
+      <div class="hero-content">
+        <span class="pill">● INTELLIGENT THREAT DETECTION PLATFORM</span>
+        <h2>Classify traffic flows.<br><em>Isolate hidden anomalies.</em></h2>
+        <p>
+          Evaluate Decision Trees, Random Forests, and Isolation Forests on network connection metrics.
+          Detect brute-force logins, DDoS packet spikes, and volumetric data exfiltration.
+        </p>
+        <div class="hero-actions">
+          <button class="primary" onclick="analyze()" id="heroRunBtn">
+            <span class="btn-text">▶ &nbsp; Run Detection Engine</span>
+            <span class="spinner hidden"></span>
+          </button>
+          <a class="secondary" href="/api/sample">
+            ↓ Download Sample Dataset
+          </a>
+          <button class="secondary" onclick="resetDemo()">
+            ↺ Reset Demo
+          </a>
+        </div>
+      </div>
+
+      <div class="hero-visual" aria-hidden="true">
+        <div class="orbit orbit1"></div>
+        <div class="orbit orbit2"></div>
+        <div class="radar-sweep"></div>
+        <div class="core">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          <small>SENTINEL</small>
+        </div>
+        <span class="node n1">FLOW-ANALYZER</span>
+        <span class="node n2">ANOMALY-ISOLATOR</span>
+        <span class="node n3">SIGNATURE-TREE</span>
+      </div>
+    </section>
+
+    <!-- Control Panel -->
+    <section class="control-panel">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">CONFIGURATION & INGESTION</div>
+          <h3>Detection Workspace Controls</h3>
+        </div>
+        <span class="tag">SECURE INGESTION</span>
+      </div>
+
+      <div class="controls-grid">
+        <!-- Algorithm Selector -->
+        <div class="field">
+          <label for="algorithm">Detection Algorithm</label>
+          <select id="algorithm" onchange="onAlgorithmChange()">
+            <option value="Random Forest" selected>Random Forest (Supervised Ensemble)</option>
+            <option value="Decision Tree">Decision Tree (Supervised White-Box)</option>
+            <option value="Isolation Forest">Isolation Forest (Unsupervised Anomaly Detection)</option>
+          </select>
+          <small id="algoHelp">Supervised classifier using balanced class weights on labeled network flows.</small>
+        </div>
+
+        <!-- Anomaly Contamination Slider -->
+        <div class="field" id="contaminationField">
+          <label for="contamination">
+            Anomaly Contamination
+            <b id="contLabel">15%</b>
+          </label>
+          <input id="contamination" type="range" min="1" max="45" value="15" oninput="updateContamination(this.value)">
+          <small>Expected outlier proportion used by Isolation Forest to partition anomalous traffic.</small>
+        </div>
+
+        <!-- CSV Dataset Upload Box -->
+        <div class="field upload-field">
+          <label>Custom Network CSV Dataset</label>
+          <div class="drop-zone" id="dropZone">
+            <input id="file" type="file" accept=".csv" onchange="onFileSelected(this)">
+            <div class="drop-prompt" id="dropPrompt">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              <span>Click or drag a <b>.csv</b> file here (max 8MB)</span>
+              <small>Expected features: <code>duration, protocol, packets, bytes, failed_logins, label</code></small>
+            </div>
+            <div class="file-info hidden" id="fileInfo">
+              <span class="file-name" id="fileName">custom_traffic.csv</span>
+              <span class="file-size" id="fileSize">14.2 KB</span>
+              <button type="button" class="btn-clear" onclick="clearUploadedFile(event)" title="Clear and use sample dataset">✕</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Config Foot Actions -->
+      <div class="config-foot">
+        <div class="dataset-indicator">
+          <span class="status-dot"></span>
+          <span id="datasetStatus">Built-in sample dataset · {{ row_count }} network flow records</span>
+        </div>
+        <div class="config-actions">
+          <button class="secondary" onclick="openPreviewModal()">▤ Preview Dataset</button>
+          <button class="secondary" onclick="resetDemo()">↺ Reset Demo</button>
+          <button class="primary" onclick="analyze()" id="analyzeBtn">
+            <span class="btn-text">Analyze Traffic ↗</span>
+            <span class="spinner hidden"></span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Error / Notification Banner -->
+    <div id="error" class="error-banner hidden" role="alert">
+      <div class="error-icon">⚠</div>
+      <div class="error-content">
+        <strong id="errorTitle">Analysis Notice</strong>
+        <p id="errorMessage"></p>
+      </div>
+      <button class="error-dismiss" onclick="dismissError()">✕</button>
+    </div>
+
+    <!-- PRIMARY DASHBOARD OVERVIEW METRICS -->
+    <section class="overview-section">
+      <div class="section-title">
+        <span class="eyebrow">TELEMETRY OVERVIEW</span>
+        <h2>Dataset & Traffic Metrics</h2>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-top">
+            <span>TOTAL ANALYZED EVENTS</span>
+            <span class="metric-icon">▤</span>
+          </div>
+          <strong id="records">{{ row_count }}</strong>
+          <small id="recordsSub">Network connection flows</small>
+        </div>
+
+        <div class="metric-card normal-theme">
+          <div class="metric-top">
+            <span>NORMAL TRAFFIC</span>
+            <span class="metric-icon">✓</span>
+          </div>
+          <strong id="normalCount">—</strong>
+          <small id="normalPct">Verified benign flows</small>
+        </div>
+
+        <div class="metric-card suspicious-theme">
+          <div class="metric-top">
+            <span>SUSPICIOUS TRAFFIC</span>
+            <span class="metric-icon">⚑</span>
+          </div>
+          <strong id="suspiciousCount">—</strong>
+          <small id="suspiciousPct">Anomalous / attack flows</small>
+        </div>
+
+        <div class="metric-card detection-theme">
+          <div class="metric-top">
+            <span>DETECTION RATE</span>
+            <span class="metric-icon">⚡</span>
+          </div>
+          <strong id="detectionRate">—<i>%</i></strong>
+          <small id="detectionSub">Proportion of flagged flows</small>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECONDARY MODEL PERFORMANCE METRICS -->
+    <section class="metrics-sub-grid">
+      <div class="sub-metric">
+        <span class="sub-label">HELD-OUT ACCURACY</span>
+        <strong id="accuracy">—%</strong>
+        <small>Evaluated on unseen test split</small>
+      </div>
+      <div class="sub-metric">
+        <span class="sub-label">PRECISION</span>
+        <strong id="precision">—%</strong>
+        <small>Correctness of suspicious flags</small>
+      </div>
+      <div class="sub-metric">
+        <span class="sub-label">RECALL</span>
+        <strong id="recall">—%</strong>
+        <small>True threats identified</small>
+      </div>
+      <div class="sub-metric">
+        <span class="sub-label">F1 SCORE</span>
+        <strong id="f1">—%</strong>
+        <small>Harmonic mean of precision & recall</small>
+      </div>
+    </section>
+
+    <!-- TWO COLUMN: EVENT FEED & TRAFFIC DISTRIBUTION -->
+    <section class="two-col" id="events">
+      <!-- Event Feed Table -->
+      <div class="panel events-panel">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">LIVE EVENT FEED</div>
+            <h3>Traffic Event Classifications</h3>
+          </div>
+          <span class="live-label"><span class="pulse"></span> LIVE INFERENCE</span>
+        </div>
+
+        <!-- Search & Filter Controls -->
+        <div class="table-filters">
+          <div class="search-box">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="eventSearch" placeholder="Search by protocol, event ID, packets..." oninput="onFilterEvents()">
+          </div>
+
+          <div class="filter-controls">
+            <select id="protocolFilter" onchange="onFilterEvents()">
+              <option value="ALL">All Protocols</option>
+              <option value="TCP">TCP</option>
+              <option value="UDP">UDP</option>
+              <option value="HTTP">HTTP</option>
+              <option value="DNS">DNS</option>
+            </select>
+
+            <select id="statusFilter" onchange="onFilterEvents()">
+              <option value="ALL">All Statuses</option>
+              <option value="Suspicious">Suspicious Only</option>
+              <option value="Normal">Normal Only</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Event Table -->
+        <div class="table-wrap">
+          <table id="eventTable">
+            <thead>
+              <tr>
+                <th>EVENT ID</th>
+                <th>DURATION (S)</th>
+                <th>PROTOCOL</th>
+                <th>PACKETS</th>
+                <th>BYTES</th>
+                <th>FAILED LOGINS</th>
+                <th>SCORE</th>
+                <th>CLASSIFICATION</th>
+              </tr>
+            </thead>
+            <tbody id="eventRows">
+              <tr>
+                <td colspan="8" class="empty">Initializing detection engine…</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table Pagination -->
+        <div class="pagination-bar">
+          <div class="page-info" id="pageInfo">Showing 0 of 0 events</div>
+          <div class="pagination-buttons">
+            <button class="btn-page" id="prevPageBtn" onclick="changePage(-1)" disabled>◀ Prev</button>
+            <span class="page-num" id="pageDisplay">1</span>
+            <button class="btn-page" id="nextPageBtn" onclick="changePage(1)" disabled>Next ▶</button>
+          </div>
+        </div>
+
+        <p class="fineprint" id="eventNote">
+          Classification scores represent model probabilities (or Isolation Forest anomaly distances).
+          Model output is indicative and not a definitive proof of compromise.
+        </p>
+      </div>
+
+      <!-- Traffic Distribution & Insights -->
+      <div class="panel">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">DISTRIBUTION & PATTERNS</div>
+            <h3>Traffic Profile Breakdown</h3>
+          </div>
+        </div>
+
+        <div class="chart-box">
+          <canvas id="trafficChart"></canvas>
+          <div id="trafficChartFallback" class="chart-fallback hidden">
+            <!-- Fallback if Chart.js is not loaded -->
+            <div class="fallback-bar">
+              <div id="fallbackNormalBar" style="width: 78%; background: var(--green);"></div>
+              <div id="fallbackSuspBar" style="width: 22%; background: var(--red);"></div>
+            </div>
+            <div class="fallback-legend">
+              <span id="fallbackNormalLabel">Normal: 78%</span>
+              <span id="fallbackSuspLabel">Suspicious: 22%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="legend-row">
+          <span><i class="dot normal"></i> Normal Traffic (<b id="legendNormalPct">--%</b>)</span>
+          <span><i class="dot suspicious"></i> Suspicious Traffic (<b id="legendSuspPct">--%</b>)</span>
+        </div>
+
+        <div class="insight-box" id="insight">
+          Analyzing network traffic flows to identify feature distributions and high-risk indicators...
+        </div>
+
+        <div class="feature-tags">
+          <span class="ftag">duration</span>
+          <span class="ftag">protocol (one-hot)</span>
+          <span class="ftag">packet count</span>
+          <span class="ftag">byte volume</span>
+          <span class="ftag">failed logins</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TWO COLUMN: CONFUSION MATRIX & QUALITY METRICS -->
+    <section class="two-col" id="evaluation">
+      <!-- Confusion Matrix Panel -->
+      <div class="panel">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">MODEL EVALUATION</div>
+            <h3>Confusion Matrix</h3>
+          </div>
+          <span class="tag">HELD-OUT TEST SPLIT (25%)</span>
+        </div>
+        <p class="sub">Rows = Actual Ground Truth · Columns = Model Prediction</p>
+
+        <div class="matrix-grid">
+          <div class="matrix-cell tn">
+            <span class="cell-label">TRUE NORMAL (TN)</span>
+            <strong id="cmTN">—</strong>
+            <small>Correctly identified benign flows</small>
+          </div>
+          <div class="matrix-cell fp">
+            <span class="cell-label">FALSE POSITIVE (FP)</span>
+            <strong id="cmFP">—</strong>
+            <small>False alarm: benign flagged as threat</small>
+          </div>
+          <div class="matrix-cell fn">
+            <span class="cell-label">FALSE NEGATIVE (FN)</span>
+            <strong id="cmFN">—</strong>
+            <small>Missed threat: attack classified as normal</small>
+          </div>
+          <div class="matrix-cell tp">
+            <span class="cell-label">TRUE POSITIVE (TP)</span>
+            <strong id="cmTP">—</strong>
+            <small>Correctly detected malicious flows</small>
+          </div>
+        </div>
+
+        <div class="matrix-guide">
+          <div class="guide-item">
+            <span class="guide-swatch safe"></span>
+            <span>TN + TP = Correct Classifications</span>
+          </div>
+          <div class="guide-item">
+            <span class="guide-swatch danger"></span>
+            <span>FN = Critical Security Risk (Missed Attack)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Performance Metrics Bars Panel -->
+      <div class="panel">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">PERFORMANCE SPECTRUM</div>
+            <h3>Evaluation Metrics</h3>
+          </div>
+        </div>
+
+        <div class="metric-bars" id="metricBars">
+          <div class="bar-item">
+            <div class="bar-label">
+              <span>Detection Accuracy</span>
+              <b id="barAccVal">—%</b>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill cyan" id="barAccFill" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-label">
+              <span>Precision (Threat Veracity)</span>
+              <b id="barPrecVal">—%</b>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill blue" id="barPrecFill" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-label">
+              <span>Recall (Threat Coverage)</span>
+              <b id="barRecVal">—%</b>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill red" id="barRecFill" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-label">
+              <span>F1 Score (Harmonic Balance)</span>
+              <b id="barF1Val">—%</b>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill purple" id="barF1Fill" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <p class="fineprint">
+          Accuracy alone can be misleading when datasets are imbalanced (e.g., 90% normal traffic).
+          High recall ensures attacks are intercepted, while precision minimizes SOC operator alert fatigue.
+        </p>
+      </div>
+    </section>
+
+    <!-- BENCHMARK LAB: SIDE-BY-SIDE MODEL COMPARISON -->
+    <section class="panel compare-panel" id="compare">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">BENCHMARK LAB</div>
+          <h3>Model Performance Comparison</h3>
+          <p class="sub">Benchmarking Decision Tree, Random Forest, and Isolation Forest on identical held-out test splits.</p>
+        </div>
+        <button class="secondary" onclick="compareModels()" id="compareBtn">
+          <span class="btn-text">⇄ &nbsp; Run Model Comparison</span>
+          <span class="spinner hidden"></span>
+        </button>
+      </div>
+
+      <div class="chart-box compare-chart">
+        <canvas id="compareChart"></canvas>
+        <div id="compareChartFallback" class="chart-fallback hidden">
+          <p class="empty">Chart.js unavailable. View comparative metrics in the table below.</p>
+        </div>
+      </div>
+
+      <div id="compareTableWrap" class="table-wrap">
+        <table id="benchmarkTable">
+          <thead>
+            <tr>
+              <th>ALGORITHM</th>
+              <th>PARADIGM</th>
+              <th>ACCURACY</th>
+              <th>PRECISION</th>
+              <th>RECALL</th>
+              <th>F1 SCORE</th>
+            </tr>
+          </thead>
+          <tbody id="compareTableBody">
+            <tr>
+              <td colspan="6" class="empty">Click "Run Model Comparison" to benchmark algorithms.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="fineprint" id="compareNote">
+        Comparison uses the active dataset with a fixed seed to guarantee equivalent evaluation splits.
+      </p>
+    </section>
+
+    <!-- HOW THE DETECTION SYSTEM WORKS (EDUCATIONAL ARCHITECTURE) -->
+    <section class="panel how-panel" id="how-it-works">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">SYSTEM ARCHITECTURE</div>
+          <h3>How the Detection System Works</h3>
+        </div>
+        <span class="tag">AI PIPELINE</span>
+      </div>
+
+      <div class="cards-grid">
+        <div class="arch-card">
+          <div class="arch-number">01</div>
+          <h4>Data Ingestion & Sanitization</h4>
+          <p>
+            Network telemetry rows are ingested from CSV streams. Column aliasing maps varied schemas into standard flow metrics:
+            <code>duration</code>, <code>protocol</code>, <code>packets</code>, <code>bytes</code>, and <code>failed_logins</code>.
+          </p>
+        </div>
+
+        <div class="arch-card">
+          <div class="arch-number">02</div>
+          <h4>Leakage-Free Preprocessing</h4>
+          <p>
+            A 25% stratified test split isolates unseen records prior to model fitting.
+            A <code>ColumnTransformer</code> applies median imputation and <code>StandardScaler</code> to numeric attributes,
+            with <code>OneHotEncoder</code> expanding categorical protocols.
+          </p>
+        </div>
+
+        <div class="arch-card">
+          <div class="arch-number">03</div>
+          <h4>Supervised Classification</h4>
+          <p>
+            <b>Decision Tree:</b> White-box tree splitting on Gini impurity to expose clear signature thresholds.<br>
+            <b>Random Forest:</b> Ensemble of 100 decorrelated trees with bootstrap aggregation and balanced class weighting.
+          </p>
+        </div>
+
+        <div class="arch-card">
+          <div class="arch-number">04</div>
+          <h4>Unsupervised Anomaly Detection</h4>
+          <p>
+            <b>Isolation Forest:</b> Recursively partitions feature space. Anomalous flows require significantly fewer random splits to isolate.
+            Outlier predictions (<code>-1</code>) map to suspicious flags without needing prior training labels.
+          </p>
+        </div>
+      </div>
+
+      <div class="viva-box">
+        <h4>Prototype & Educational Disclaimer</h4>
+        <p>
+          CyberSentinel AI is designed for cyber defense education, algorithm benchmarking, and threat visualization.
+          Synthetic traffic demonstrations reproduce known volumetric and brute-force signatures but do not guarantee protection against real-world zero-day exploits.
+          In operational environments, intrusion detection systems (IDS) require deep packet inspection, TLS fingerprinting, and expert SOC review.
+        </p>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div>
+        <strong>CYBERSENTINEL AI</strong> · Intelligent Cyber Threat Detection Platform
+      </div>
+      <div>
+        Built with Flask, Scikit-Learn & Vanilla CSS · Local Analysis Engine
+      </div>
+    </footer>
+  </main>
+</div>
+
+<!-- Raw Dataset Preview Modal -->
+<div id="previewModal" class="modal-overlay hidden" onclick="closeModalOnBackdrop(event)">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <div class="eyebrow">DATASET INSPECTION</div>
+        <h3>Sample Raw Records (First 10 Rows)</h3>
+      </div>
+      <button class="modal-close" onclick="closePreviewModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="table-wrap">
+        <table id="previewTable">
+          <thead id="previewHead"></thead>
+          <tbody id="previewBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span id="previewMeta">Loading preview data...</span>
+      <button class="primary" onclick="closePreviewModal()">Done</button>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
